@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,11 +12,12 @@ public class QuizActivity extends AppCompatActivity {
 
     private Button mTrueButton;
     private Button mFalseButton;
-    private ImageButton mNextButton;
-    private ImageButton mPrevButton;
+    private View mNextButton;
+    private View mPrevButton;
     private TextView mQuestionTextView;
 
     private static final String TAG = "QuizActivity";
+    private static final String KEY_INDEX = "index";
 
 
     private Question[] mQuestionBank = new Question[] {
@@ -57,6 +57,11 @@ public class QuizActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_quiz);
 
+        if (savedInstanceState != null)
+        {
+            mCurrentIndex = savedInstanceState.getInt(KEY_INDEX, 0);
+        }
+
         mQuestionTextView = (TextView)findViewById(R.id.question_text_view);
         updateQuestion();
 
@@ -84,27 +89,41 @@ public class QuizActivity extends AppCompatActivity {
             }
         });
 
-        mNextButton = (ImageButton) findViewById(R.id.next_button);
-        mNextButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
-                updateQuestion();
-            }
-        });
-
-        mPrevButton = (ImageButton) findViewById(R.id.previous_button);
-        mPrevButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                if (mCurrentIndex >= 1){
-                    mCurrentIndex = (mCurrentIndex - 1 ) % mQuestionBank.length;
+        mNextButton = findViewById(R.id.next_button);
+        if (mNextButton != null ){
+            mNextButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    mCurrentIndex = (mCurrentIndex + 1) % mQuestionBank.length;
+                    updateQuestion();
                 }
-                else
-                    mCurrentIndex = 0;
-                updateQuestion();
-             }
-        });
+            });
+        }
+
+
+        mPrevButton = findViewById(R.id.previous_button);
+        if (mPrevButton != null){
+            mPrevButton.setOnClickListener(new View.OnClickListener(){
+                @Override
+                public void onClick(View view){
+                    if (mCurrentIndex >= 1){
+                        mCurrentIndex = (mCurrentIndex - 1 ) % mQuestionBank.length;
+                    }
+                    else
+                        mCurrentIndex = 0;
+                    updateQuestion();
+                }
+            });
+        }
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState)
+    {
+        super.onSaveInstanceState(savedInstanceState);
+        Log.i(TAG, "onSaveInstanceState");
+        savedInstanceState.putInt(KEY_INDEX, mCurrentIndex);
     }
 
     @Override
